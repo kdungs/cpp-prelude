@@ -79,6 +79,22 @@ auto test_reverse() -> void {
   assert(result == expect);
 }
 
+auto test_foldl() -> void {
+  using Prelude::foldl;
+  auto expect = 10;
+  auto result = foldl([](int acc, int x) { return acc + x; }, 0,
+                      std::vector<int>{1, 2, 3, 4});
+  assert(result == expect);
+}
+
+auto test_foldl1() -> void {
+  using Prelude::foldl1;
+  auto expect = 10;
+  auto result = foldl1([](int acc, int x) { return acc + x; },
+                       std::vector<int>{1, 2, 3, 4});
+  assert(result == expect);
+}
+
 int main() {
   test_map();
   test_join();
@@ -90,4 +106,7 @@ int main() {
   test_null();
   test_at();
   test_reverse();
+
+  test_foldl();
+  test_foldl1();
 }

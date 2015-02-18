@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <numeric>
 
 namespace Prelude {
 
@@ -112,7 +113,20 @@ auto reverse(const CN<A, AllocA>& c) -> CN<A, AllocA> {
 // ------------------------
 
 // foldl :: (b -> a -> b) -> b -> [a] -> b
+template <Function FN, Type B, Container CN, Type A,
+          typename AllocA = std::allocator<A>>
+auto foldl(const FN& f, B&& acc, const CN<A, AllocA>& c) -> B {
+  return std::accumulate(std::begin(c), std::end(c), std::forward<B>(acc), f);
+}
+
 // foldl1 :: (a -> a -> a) -> [a] -> a
+template <Function FN, Container CN, Type A,
+          typename AllocA = std::allocator<A>>
+auto foldl1(const FN& f, const CN<A, AllocA>& c) -> A {
+  assert(c.size() && "Container can't be empty.");
+  return std::accumulate(std::begin(c) + 1, std::end(c), c.front(), f);
+}
+
 // foldr :: (a -> b -> b) -> b -> [a] -> b
 // foldr1 :: (a -> a -> a) -> [a] -> a
 
