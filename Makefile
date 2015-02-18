@@ -1,6 +1,9 @@
 CXXFLAGS=-O3 -Wall -Werror -pedantic -std=c++11
 
-test: test.cc
+all: test_prelude
+
+test: test_prelude
+	./test_prelude
 
 clean:
-	rm -f test
+	rm -f test_prelude
