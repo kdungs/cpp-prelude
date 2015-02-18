@@ -30,16 +30,16 @@ After playing around with [functional immutable lists in C++11](https://github.c
 
 ### Special folds
 
- * [ ] `and :: [Bool] -> Bool`
- * [ ] `or :: [Bool] -> Bool`
- * [ ] `any :: (a -> Bool) -> [a] -> Bool`
- * [ ] `all :: (a -> Bool) -> [a] -> Bool`
- * [ ] `sum :: Num a => [a] -> a`
- * [ ] `product :: Num a => [a] -> a`
- * [ ] `concat :: [[a]] -> [a]`
- * [ ] `concatMap :: (a -> [b]) -> [a] -> [b]`
- * [ ] `maximum :: Ord a => [a] -> a`
- * [ ] `minimum :: Ord a => [a] -> a`
+ * [x] `and :: [Bool] -> Bool`
+ * [x] `or :: [Bool] -> Bool`
+ * [x] `any :: (a -> Bool) -> [a] -> Bool`
+ * [x] `all :: (a -> Bool) -> [a] -> Bool`
+ * [x] `sum :: Num a => [a] -> a`
+ * [x] `product :: Num a => [a] -> a`
+ * [x] `concat :: [[a]] -> [a]`
+ * [x] `concatMap :: (a -> [b]) -> [a] -> [b]`
+ * [x] `maximum :: Ord a => [a] -> a`
+ * [x] `minimum :: Ord a => [a] -> a`
 
 ### Building lists
 

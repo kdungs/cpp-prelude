@@ -13,6 +13,8 @@ namespace Prelude {
 #define Function typename
 #define Predicate typename
 #define Type typename
+#define Number typename
+#define Ordinal typename
 
 // -----------------
 //  List operations
@@ -25,7 +27,6 @@ template <Function FN, Container CN, Type A,
           typename AllocB = std::allocator<B>>
 auto map(const FN& f, const CN<A, AllocA>& c) -> CN<B, AllocB> {
   auto res = CN<B, AllocB>{};
-  res.reserve(c.size());
   std::transform(std::begin(c), std::end(c), std::back_inserter(res), f);
   return res;
 }
@@ -157,15 +158,73 @@ auto foldr1(const FN& f, const CN<A, AllocA>& c) -> A {
 // ---------------
 
 // and :: [Bool] -> Bool
+template <Container CN, typename Alloc = std::allocator<bool>>
+auto and_(const CN<bool, Alloc>& c) -> bool {
+  return std::all_of(std::begin(c), std::end(c), [](bool x) { return x; });
+}
+
 // or :: [Bool] -> Bool
+template <Container CN, typename Alloc = std::allocator<bool>>
+auto or_(const CN<bool, Alloc>& c) -> bool {
+  return std::any_of(std::begin(c), std::end(c), [](bool x) { return x; });
+}
+
 // any :: (a -> Bool) -> [a] -> Bool
+template <Function FN, Container CN, Type A,
+          typename AllocA = std::allocator<A>>
+auto any(const FN& f, const CN<A, AllocA>& c) -> bool {
+  return std::any_of(std::begin(c), std::end(c), f);
+}
+
 // all :: (a -> Bool) -> [a] -> Bool
+template <Function FN, Container CN, Type A,
+          typename AllocA = std::allocator<A>>
+auto all(const FN& f, const CN<A, AllocA>& c) -> bool {
+  return std::all_of(std::begin(c), std::end(c), f);
+}
+
 // sum :: Num a => [a] -> a
+template <Container CN, Number A, typename AllocA = std::allocator<A>>
+auto sum(const CN<A, AllocA>& c) -> A {
+  return foldl([](const A& acc, const A& x) { return acc + x; }, A{0}, c);
+}
+
 // product :: Num a => [a] -> a
+template <Container CN, Number A, typename AllocA = std::allocator<A>>
+auto product(const CN<A, AllocA>& c) -> A {
+  return foldl([](const A& acc, const A& x) { return acc * x; }, A{1}, c);
+}
+
 // concat :: [[a]] -> [a]
+template <typename _Container, typename Inner = typename _Container::value_type>
+auto concat(const _Container& c) -> Inner {
+  auto res = Inner{};
+  for (const auto _c : c) {
+    res.insert(std::end(res), std::begin(_c), std::end(_c));
+  }
+  return res;
+}
+
 // concatMap :: (a -> [b]) -> [a] -> [b]
+template <Function FN, Container CN, Type A,
+          typename AllocA = std::allocator<A>,
+          typename Inner = typename std::result_of<FN(A)>::type,
+          typename AllocInner = std::allocator<Inner>>
+auto concatMap(const FN& f, const CN<A, AllocA>& c) -> Inner {
+  return concat<CN<Inner, AllocInner>, Inner>(
+      map<FN, CN, A, Inner, AllocA, AllocInner>(f, c));
+}
+
 // maximum :: Ord a => [a] -> a
+template <typename _Container, Ordinal A = typename _Container::value_type>
+auto maximum(const _Container& c) -> A {
+  return *std::max_element(std::begin(c), std::end(c));
+}
 // minimum :: Ord a => [a] -> a
+template <typename _Container, Ordinal A = typename _Container::value_type>
+auto minimum(const _Container& c) -> A {
+  return *std::min_element(std::begin(c), std::end(c));
+}
 
 
 // ----------------
