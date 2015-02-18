@@ -15,7 +15,7 @@ namespace Prelude {
 #define Type typename
 
 // -----------------
-//  List operations 
+//  List operations
 // -----------------
 
 // map :: (a -> b) -> [a] -> [b]
@@ -107,9 +107,8 @@ auto reverse(const CN<A, AllocA>& c) -> CN<A, AllocA> {
   return res;
 }
 
-
 // ------------------------
-//  Reducing lists (folds) 
+//  Reducing lists (folds)
 // ------------------------
 
 // foldl :: (b -> a -> b) -> b -> [a] -> b
@@ -128,6 +127,26 @@ auto foldl1(const FN& f, const CN<A, AllocA>& c) -> A {
 }
 
 // foldr :: (a -> b -> b) -> b -> [a] -> b
-// foldr1 :: (a -> a -> a) -> [a] -> a
+template <Function FN, Type B, Container CN, Type A,
+          typename AllocA = std::allocator<A>>
+auto foldr(const FN& f, B&& acc, const CN<A, AllocA>& c) -> B {
+  // One way to do this is assuming a BidirIt and iterating the Container back
+  // to front. The following is a more general approach that probably entails a
+  // lot of copies. To be benchmarked!
+  if (null(c)) {
+    return std::forward<B>(acc);
+  }
+  return f(head(c),
+           foldr<FN, B, CN, A, AllocA>(f, std::forward<B>(acc), tail(c)));
+}
 
+// foldr1 :: (a -> a -> a) -> [a] -> a
+template <Function FN, Container CN, Type A, typename AllocA = std::allocator<A>>
+auto foldr1(const FN& f, const CN<A, AllocA>& c) -> A {
+  assert(c.size() && "Container can't be empty.");
+  if(null(tail(c))) {
+    return head(c);
+  }
+  return f(head(c), foldr1<FN, CN, A, AllocA>(f, tail(c)));
+}
 }

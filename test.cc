@@ -95,6 +95,22 @@ auto test_foldl1() -> void {
   assert(result == expect);
 }
 
+auto test_foldr() -> void {
+  using Prelude::foldr;
+  auto expect = 10;
+  auto result = foldr([](int x, int acc) { return x + acc; }, 0,
+                      std::vector<int>{1, 2, 3, 4});
+  assert(result == expect);
+}
+
+auto test_foldr1() -> void {
+  using Prelude::foldr1;
+  auto expect = 10;
+  auto result = foldr1([](int x, int acc) { return x + acc; },
+                       std::vector<int>{1, 2, 3, 4});
+  assert(result == expect);
+}
+
 int main() {
   test_map();
   test_join();
@@ -109,4 +125,6 @@ int main() {
 
   test_foldl();
   test_foldl1();
+  test_foldr();
+  test_foldr1();
 }
