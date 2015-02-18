@@ -141,7 +141,8 @@ auto foldr(const FN& f, B&& acc, const CN<A, AllocA>& c) -> B {
 }
 
 // foldr1 :: (a -> a -> a) -> [a] -> a
-template <Function FN, Container CN, Type A, typename AllocA = std::allocator<A>>
+template <Function FN, Container CN, Type A,
+          typename AllocA = std::allocator<A>>
 auto foldr1(const FN& f, const CN<A, AllocA>& c) -> A {
   assert(c.size() && "Container can't be empty.");
   if(null(tail(c))) {
@@ -149,4 +150,74 @@ auto foldr1(const FN& f, const CN<A, AllocA>& c) -> A {
   }
   return f(head(c), foldr1<FN, CN, A, AllocA>(f, tail(c)));
 }
+
+
+// ---------------
+//  Special folds
+// ---------------
+
+// and :: [Bool] -> Bool
+// or :: [Bool] -> Bool
+// any :: (a -> Bool) -> [a] -> Bool
+// all :: (a -> Bool) -> [a] -> Bool
+// sum :: Num a => [a] -> a
+// product :: Num a => [a] -> a
+// concat :: [[a]] -> [a]
+// concatMap :: (a -> [b]) -> [a] -> [b]
+// maximum :: Ord a => [a] -> a
+// minimum :: Ord a => [a] -> a
+
+
+// ----------------
+//  Building lists
+// ----------------
+
+// scanl :: (b -> a -> b) -> b -> [a] -> [b]
+// scanl1 :: (a -> a -> a) -> [a] -> [a]
+// scanr :: (a -> b -> b) -> b -> [a] -> [b]
+// scanr1 :: (a -> a -> a) -> [a] -> [a]
+
+
+// ----------------
+//  Infinite lists
+// ----------------
+//
+// Without lazy evaluation, there is not really any way to produce infinite
+// lists. Maybe I'll implement these functions with an additional size
+// parameter.
+
+
+// ----------
+//  Sublists
+// ----------
+
+// take :: Int -> [a] -> [a]
+// drop :: Int -> [a] -> [a]
+// splitAt :: Int -> [a] -> ([a], [a])
+// takeWhile :: (a -> Bool) -> [a] -> [a]
+// dropWhile :: (a -> Bool) -> [a] -> [a]
+// span :: (a -> Bool) -> [a] -> ([a], [a])
+// break :: (a -> Bool) -> [a] -> ([a], [a])
+
+
+// -----------------
+//  Searching lists
+// -----------------
+
+// elem :: Eq a => a -> [a] -> Bool
+// notElem :: Eq a => a -> [a] -> Bool
+// lookup :: Eq a => a -> [(a, b)] -> Maybe b
+
+
+// -----------------------------
+//  Zipping and unzipping lists 
+// -----------------------------
+
+// zip :: [a] -> [b] -> [(a, b)] Source
+// zip3 :: [a] -> [b] -> [c] -> [(a, b, c)]
+// zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+// zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]
+// unzip :: [(a, b)] -> ([a], [b])
+// unzip3 :: [(a, b, c)] -> ([a], [b], [c])
+
 }

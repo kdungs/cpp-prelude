@@ -1,13 +1,5 @@
 language: cpp
 
-compiler:
-  - clang
-  - gcc
+compiler: clang
 
 script: make && make test
-
-os:
-  - linux
-  - osx
-
-osx_image: xcode61
