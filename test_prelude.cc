@@ -321,8 +321,9 @@ auto test_unzip() -> void {
   auto expectR = std::vector<bool>{true, false, true};
   std::vector<int> resultL;
   std::vector<bool> resultR;
-  std::tie(resultL, resultR) = unzip(
-      std::vector<std::tuple<int, bool>>{{1, true}, {2, false}, {3, true}});
+  std::tie(resultL, resultR) = unzip(std::vector<std::tuple<int, bool>>{
+      std::make_tuple(1, true), std::make_tuple(2, false),
+      std::make_tuple(3, true)});
   assert(resultL == expectL);
   assert(resultR == expectR);
 }
@@ -337,7 +338,8 @@ auto test_unzip3() -> void {
   std::vector<bool> resultR;
   std::tie(resultL, resultM, resultR) =
       unzip3(std::vector<std::tuple<int, char, bool>>{
-          {1, 'a', true}, {2, 'b', false}, {3, 'c', true}});
+          std::make_tuple(1, 'a', true), std::make_tuple(2, 'b', false),
+          std::make_tuple(3, 'c', true)});
   assert(resultL == expectL);
   assert(resultM == expectM);
   assert(resultR == expectR);
