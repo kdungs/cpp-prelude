@@ -57,13 +57,13 @@ parameter.
 
 ### Sublists
 
- * [ ] `take :: Int -> [a] -> [a]`
- * [ ] `drop :: Int -> [a] -> [a]`
- * [ ] `splitAt :: Int -> [a] -> ([a], [a])`
- * [ ] `takeWhile :: (a -> Bool) -> [a] -> [a]`
- * [ ] `dropWhile :: (a -> Bool) -> [a] -> [a]`
- * [ ] `span :: (a -> Bool) -> [a] -> ([a], [a])`
- * [ ] `break :: (a -> Bool) -> [a] -> ([a], [a])`
+ * [x] `take :: Int -> [a] -> [a]`
+ * [x] `drop :: Int -> [a] -> [a]`
+ * [x] `splitAt :: Int -> [a] -> ([a], [a])`
+ * [x] `takeWhile :: (a -> Bool) -> [a] -> [a]`
+ * [x] `dropWhile :: (a -> Bool) -> [a] -> [a]`
+ * [x] `span :: (a -> Bool) -> [a] -> ([a], [a])`
+ * [x] `break :: (a -> Bool) -> [a] -> ([a], [a])`
 
 ### Searching lists
 
@@ -73,9 +73,9 @@ parameter.
 
 ### Zipping and unzipping lists 
 
- * [ ] `zip :: [a] -> [b] -> [(a, b)]`
- * [ ] `zip3 :: [a] -> [b] -> [c] -> [(a, b, c)]`
- * [ ] `zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]`
- * [ ] `zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]`
- * [ ] `unzip :: [(a, b)] -> ([a], [b])`
- * [ ] `unzip3 :: [(a, b, c)] -> ([a], [b], [c])`
+ * [x] `zip :: [a] -> [b] -> [(a, b)]`
+ * [x] `zip3 :: [a] -> [b] -> [c] -> [(a, b, c)]`
+ * [x] `zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]`
+ * [x] `zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]`
+ * [x] `unzip :: [(a, b)] -> ([a], [b])`
+ * [x] `unzip3 :: [(a, b, c)] -> ([a], [b], [c])`
