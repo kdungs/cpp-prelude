@@ -279,8 +279,9 @@ auto test_break_() -> void {
 
 auto test_zip() -> void {
   using Prelude::zip;
-  auto expect =
-      std::vector<std::tuple<int, bool>>{{1, true}, {2, false}, {3, true}};
+  auto expect = std::vector<std::tuple<int, bool>>{std::make_tuple(1, true),
+                                                   std::make_tuple(2, false),
+                                                   std::make_tuple(3, true)};
   auto result =
       zip(std::vector<int>{1, 2, 3}, std::list<bool>{true, false, true});
   assert(result == expect);
@@ -289,7 +290,8 @@ auto test_zip() -> void {
 auto test_zip3() -> void {
   using Prelude::zip3;
   auto expect = std::vector<std::tuple<int, bool, char>>{
-      {1, true, 'a'}, {2, false, 'b'}, {3, true, 'm'}};
+      std::make_tuple(1, true, 'a'), std::make_tuple(2, false, 'b'),
+      std::make_tuple(3, true, 'm')};
   auto result =
       zip3(std::vector<int>{1, 2, 3}, std::list<bool>{true, false, true},
            std::vector<char>{'a', 'b', 'm'});
