@@ -6,6 +6,14 @@
 #include <list>
 #include <vector>
 
+auto test_not_() -> void {
+  using Prelude::not_;
+  auto even = [](int x) { return x % 2 == 0; };
+  auto odd = not_<int>(even);
+  assert(odd(3) == true);
+  assert(odd(2) == false);
+}
+
 auto test_map() -> void {
   using Prelude::map;
   auto expect = std::vector<bool>{false, true, false, true, false};
@@ -186,8 +194,90 @@ auto test_minimum() -> void {
   assert(result == expect);
 }
 
+auto test_take() -> void {
+  using Prelude::take;
+  auto expect = std::vector<int>{1, 2, 3, 4};
+  auto result = take(4, std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
+  assert(result == expect);
+  // also check case for n > size
+  result = take(100, expect);
+  assert(result == expect && "Also has to work for n > size!");
+}
+
+auto test_drop() -> void {
+  using Prelude::drop;
+  auto expect = std::vector<int>{5, 6, 7, 8};
+  auto result = drop(4, std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
+  assert(result == expect);
+  // also check case for n > size
+  result = drop(100, std::vector<int>{1, 2, 3, 4});
+  expect = std::vector<int>{};
+  assert(result == expect && "Also has to work for n > size!");
+}
+
+auto test_splitAt() -> void {
+  using Prelude::splitAt;
+  auto expectL = std::vector<int>{1, 2, 3, 4};
+  auto expectR = std::vector<int>{5, 6, 7, 8};
+  std::vector<int> resultL, resultR;
+  std::tie(resultL, resultR) =
+      splitAt(4, std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
+  assert(resultL == expectL);
+  assert(resultR == expectR);
+  // empty first half
+  expectL = std::vector<int>{};
+  expectR = std::vector<int>{1, 2, 3, 4};
+  std::tie(resultL, resultR) = splitAt(0, std::vector<int>{1, 2, 3, 4});
+  assert(resultL == expectL);
+  assert(resultR == expectR);
+  // empty second half
+  expectL = std::vector<int>{1, 2, 3, 4};
+  expectR = std::vector<int>{};
+  std::tie(resultL, resultR) = splitAt(10, std::vector<int>{1, 2, 3, 4});
+  assert(resultL == expectL);
+  assert(resultR == expectR);
+}
+
+auto test_takeWhile() -> void {
+  using Prelude::takeWhile;
+  auto expect = std::vector<int>{1, 2, 3, 4};
+  auto result = takeWhile([](int x) { return x < 5; },
+                          std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
+  assert(result == expect);
+}
+
+auto test_dropWhile() -> void {
+  using Prelude::dropWhile;
+  auto expect = std::vector<int>{5, 6, 7, 8};
+  auto result = dropWhile([](int x) { return x < 5; },
+                          std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
+  assert(result == expect);
+}
+
+auto test_span() -> void {
+  using Prelude::span;
+  auto expectL = std::vector<int>{1, 2, 3, 4};
+  auto expectR = std::vector<int>{5, 6, 7, 8};
+  std::vector<int> resultL, resultR;
+  std::tie(resultL, resultR) = span([](int x) { return x < 5; },
+                                    std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
+  assert(resultL == expectL);
+  assert(resultR == expectR);
+}
+
+auto test_break_() -> void {
+  using Prelude::break_;
+  auto expectL = std::vector<int>{1, 2, 3, 4};
+  auto expectR = std::vector<int>{5, 6, 7, 8};
+  std::vector<int> resultL, resultR;
+  std::tie(resultL, resultR) = break_([](int x) { return x >= 5; },
+                                    std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
+  assert(resultL == expectL);
+  assert(resultR == expectR);
+}
 
 int main() {
+  test_not_();
   // List operations
   test_map();
   test_join();
@@ -215,4 +305,12 @@ int main() {
   test_concatMap();
   test_maximum();
   test_minimum();
+  // Sublists
+  test_take();
+  test_drop();
+  test_splitAt();
+  test_takeWhile();
+  test_dropWhile();
+  test_span();
+  test_break_();
 }

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <iterator>
 #include <numeric>
 
@@ -15,6 +16,12 @@ namespace Prelude {
 #define Type typename
 #define Number typename
 #define Ordinal typename
+
+// not :: (a -> Bool) -> (a -> Bool)
+template <Type A>  // needs to be passed explicitly for the moment
+auto not_(const std::function<bool(A)>& p) -> std::function<bool(A)> {
+  return [&](A x) { return !p(x); };
+}
 
 // -----------------
 //  List operations
@@ -251,13 +258,61 @@ auto minimum(const _Container& c) -> A {
 // ----------
 
 // take :: Int -> [a] -> [a]
-// drop :: Int -> [a] -> [a]
-// splitAt :: Int -> [a] -> ([a], [a])
-// takeWhile :: (a -> Bool) -> [a] -> [a]
-// dropWhile :: (a -> Bool) -> [a] -> [a]
-// span :: (a -> Bool) -> [a] -> ([a], [a])
-// break :: (a -> Bool) -> [a] -> ([a], [a])
+template <typename _Container>
+auto take(std::size_t n, const _Container& c) -> _Container {
+  return _Container{std::begin(c),
+                    n > c.size() ? std::end(c) : std::begin(c) + n};
+}
 
+// drop :: Int -> [a] -> [a]
+template <typename _Container>
+auto drop(std::size_t n, const _Container& c) -> _Container {
+  return _Container{n > c.size() ? std::end(c) : std::begin(c) + n,
+                    std::end(c)};
+}
+
+// splitAt :: Int -> [a] -> ([a], [a])
+template <typename _Container>
+auto splitAt(std::size_t n, const _Container& c) -> std::tuple<_Container, _Container> {
+  return std::make_tuple(take(n, c), drop(n, c));
+}
+
+// takeWhile :: (a -> Bool) -> [a] -> [a]
+template <Predicate PR, typename _Container>
+auto takeWhile(const PR& p, const _Container& c) -> _Container {
+  return _Container(std::begin(c),
+                    std::partition_point(std::begin(c), std::end(c), p));
+}
+
+// dropWhile :: (a -> Bool) -> [a] -> [a]
+template <Predicate PR, typename _Container>
+auto dropWhile(const PR& p, const _Container& c) -> _Container {
+  return _Container(std::partition_point(std::begin(c), std::end(c), p),
+                    std::end(c));
+}
+
+// span :: (a -> Bool) -> [a] -> ([a], [a])
+template <Predicate PR, typename _Container>
+auto span(const PR& p, const _Container& c)
+    -> std::tuple<_Container, _Container> {
+  auto pp = std::partition_point(std::begin(c), std::end(c), p);
+  return std::make_tuple(_Container{std::begin(c), pp},
+                         _Container{pp, std::end(c)});
+}
+
+// break :: (a -> Bool) -> [a] -> ([a], [a])
+template <Predicate PR, typename _Container>
+auto break_(const PR& p, const _Container& c)
+    -> std::tuple<_Container, _Container> {
+  return span(not_<typename _Container::value_type>(p), c);
+}
+// break, applied to a predicate p and a list xs, returns a tuple where first
+// element is longest prefix (possibly empty) of xs of elements that do not
+// satisfy p and second element is the remainder of the list:
+// break (> 3) [1,2,3,4,1,2,3,4] == ([1,2,3],[4,1,2,3,4])
+// break (< 9) [1,2,3] == ([],[1,2,3])
+// break (> 9) [1,2,3] == ([1,2,3],[])
+// break p is equivalent to span (not . p).
 
 // -----------------
 //  Searching lists
