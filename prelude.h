@@ -153,12 +153,11 @@ template <Function FN, Container CN, Type A,
           typename AllocA = std::allocator<A>>
 auto foldr1(const FN& f, const CN<A, AllocA>& c) -> A {
   assert(c.size() && "Container can't be empty.");
-  if(null(tail(c))) {
+  if (null(tail(c))) {
     return head(c);
   }
   return f(head(c), foldr1<FN, CN, A, AllocA>(f, tail(c)));
 }
-
 
 // ---------------
 //  Special folds
@@ -233,7 +232,6 @@ auto minimum(const _Container& c) -> A {
   return *std::min_element(std::begin(c), std::end(c));
 }
 
-
 // ----------------
 //  Building lists
 // ----------------
@@ -243,7 +241,6 @@ auto minimum(const _Container& c) -> A {
 // scanr :: (a -> b -> b) -> b -> [a] -> [b]
 // scanr1 :: (a -> a -> a) -> [a] -> [a]
 
-
 // ----------------
 //  Infinite lists
 // ----------------
@@ -251,7 +248,6 @@ auto minimum(const _Container& c) -> A {
 // Without lazy evaluation, there is not really any way to produce infinite
 // lists. Maybe I'll implement these functions with an additional size
 // parameter.
-
 
 // ----------
 //  Sublists
@@ -273,7 +269,8 @@ auto drop(std::size_t n, const _Container& c) -> _Container {
 
 // splitAt :: Int -> [a] -> ([a], [a])
 template <typename _Container>
-auto splitAt(std::size_t n, const _Container& c) -> std::tuple<_Container, _Container> {
+auto splitAt(std::size_t n, const _Container& c)
+    -> std::tuple<_Container, _Container> {
   return std::make_tuple(take(n, c), drop(n, c));
 }
 
@@ -306,13 +303,6 @@ auto break_(const PR& p, const _Container& c)
     -> std::tuple<_Container, _Container> {
   return span(not_<typename _Container::value_type>(p), c);
 }
-// break, applied to a predicate p and a list xs, returns a tuple where first
-// element is longest prefix (possibly empty) of xs of elements that do not
-// satisfy p and second element is the remainder of the list:
-// break (> 3) [1,2,3,4,1,2,3,4] == ([1,2,3],[4,1,2,3,4])
-// break (< 9) [1,2,3] == ([],[1,2,3])
-// break (> 9) [1,2,3] == ([1,2,3],[])
-// break p is equivalent to span (not . p).
 
 // -----------------
 //  Searching lists
@@ -322,16 +312,128 @@ auto break_(const PR& p, const _Container& c)
 // notElem :: Eq a => a -> [a] -> Bool
 // lookup :: Eq a => a -> [(a, b)] -> Maybe b
 
-
 // -----------------------------
-//  Zipping and unzipping lists 
+//  Zipping and unzipping lists
 // -----------------------------
 
-// zip :: [a] -> [b] -> [(a, b)] Source
+// zip :: [a] -> [b] -> [(a, b)]
+template <Container CA, Type A, typename AllocA = std::allocator<A>,
+          Container CB, Type B, typename AllocB = std::allocator<B>,
+          Container CRES = CA, typename RES = std::tuple<A, B>,
+          typename AllocRES = std::allocator<RES>>
+auto zip(const CA<A, AllocA>& left, const CB<B, AllocB>& right)
+    -> CRES<RES, AllocRES> {
+  auto res = CRES<RES, AllocRES>{};
+  auto l = std::begin(left);
+  auto r = std::begin(right);
+  while (l != std::end(left) && r != std::end(right)) {
+    res.emplace_back(*l, *r);
+    ++l;
+    ++r;
+  }
+  return res;
+}
+
 // zip3 :: [a] -> [b] -> [c] -> [(a, b, c)]
-// zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-// zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]
-// unzip :: [(a, b)] -> ([a], [b])
-// unzip3 :: [(a, b, c)] -> ([a], [b], [c])
+template <Container CA, Type A, typename AllocA = std::allocator<A>,
+          Container CB, Type B, typename AllocB = std::allocator<B>,
+          Container CC, Type C, typename AllocC = std::allocator<C>,
+          Container CRES = CA, typename RES = std::tuple<A, B, C>,
+          typename AllocRES = std::allocator<RES>>
+auto zip3(const CA<A, AllocA>& left, const CB<B, AllocB>& middle,
+          const CC<C, AllocC>& right) -> CRES<RES, AllocRES> {
+  auto res = CRES<RES, AllocRES>{};
+  auto l = std::begin(left);
+  auto m = std::begin(middle);
+  auto r = std::begin(right);
+  while (l != std::end(left) && m != std::end(middle) && r != std::end(right)) {
+    res.emplace_back(*l, *m, *r);
+    ++l;
+    ++m;
+    ++r;
+  }
+  return res;
+}
 
+// zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+template <Function FN, Container CA, Type A,
+          typename AllocA = std::allocator<A>, Container CB, Type B,
+          typename AllocB = std::allocator<B>, Container CC = CA,
+          Type C = typename std::result_of<FN(A, B)>::type,
+          typename AllocC = std::allocator<C>>
+auto zipWith(const FN& f, const CA<A, AllocA>& left, const CB<B, AllocB>& right)
+    -> CC<C, AllocC> {
+  auto res = CC<C, AllocC>{};
+  auto l = std::begin(left);
+  auto r = std::begin(right);
+  while (l != std::end(left) && r != std::end(right)) {
+    res.emplace_back(f(*l, *r));
+    ++l;
+    ++r;
+  }
+  return res;
+}
+
+// zipWith3 :: (a -> b -> c -> d) -> [a] -> [b] -> [c] -> [d]
+template <Function FN, Container CA, Type A,
+          typename AllocA = std::allocator<A>, Container CB, Type B,
+          typename AllocB = std::allocator<B>, Container CC, Type C,
+          typename AllocC = std::allocator<C>, Container CD = CA,
+          Type D = typename std::result_of<FN(A, B, C)>::type,
+          typename AllocD = std::allocator<D>>
+auto zipWith3(const FN& f, const CA<A, AllocA>& left,
+              const CB<B, AllocB>& middle, const CC<C, AllocC>& right)
+    -> CD<D, AllocD> {
+  auto res = CD<D, AllocD>{};
+  auto l = std::begin(left);
+  auto m = std::begin(middle);
+  auto r = std::begin(right);
+  while (l != std::end(left) && m != std::end(middle) && r != std::end(right)) {
+    res.emplace_back(f(*l, *m, *r));
+    ++l;
+    ++m;
+    ++r;
+  }
+  return res;
+}
+
+// unzip :: [(a, b)] -> ([a], [b])
+template <Container CN, typename TUP, typename AllocTUP = std::allocator<TUP>,
+          Container CA = CN, Type A = typename std::tuple_element<0, TUP>::type,
+          typename AllocA = std::allocator<A>, Container CB = CN,
+          Type B = typename std::tuple_element<1, TUP>::type,
+          typename AllocB = std::allocator<B>>
+auto unzip(const CN<TUP, AllocTUP>& c)
+    -> std::tuple<CA<A, AllocA>, CB<B, AllocB>> {
+  auto ca = CA<A, AllocA>{};
+  auto cb = CB<B, AllocB>{};
+  for (const auto& t : c) {
+    // wanted to use emplace_back but not
+    // available for vector<bool>, maybe use back_inserter...
+    ca.push_back(std::get<0>(t));
+    cb.push_back(std::get<1>(t));
+  }
+  return std::make_tuple(ca, cb);
+}
+
+// unzip3 :: [(a, b, c)] -> ([a], [b], [c])
+template <Container CN, typename TUP, typename AllocTUP = std::allocator<TUP>,
+          Container CA = CN, Type A = typename std::tuple_element<0, TUP>::type,
+          typename AllocA = std::allocator<A>, Container CB = CN,
+          Type B = typename std::tuple_element<1, TUP>::type,
+          typename AllocB = std::allocator<B>, Container CC = CN,
+          Type C = typename std::tuple_element<2, TUP>::type,
+          typename AllocC = std::allocator<C>>
+auto unzip3(const CN<TUP, AllocTUP>& c)
+    -> std::tuple<CA<A, AllocA>, CB<B, AllocB>, CC<C, AllocC>> {
+  auto ca = CA<A, AllocA>{};
+  auto cb = CB<B, AllocB>{};
+  auto cc = CC<C, AllocC>{};
+  for (const auto& t : c) {
+    ca.push_back(std::get<0>(t));
+    cb.push_back(std::get<1>(t));
+    cc.push_back(std::get<2>(t));
+  }
+  return std::make_tuple(ca, cb, cc);
+}
 }

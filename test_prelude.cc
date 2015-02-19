@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <list>
+#include <string>
 #include <vector>
 
 auto test_not_() -> void {
@@ -271,8 +272,74 @@ auto test_break_() -> void {
   auto expectR = std::vector<int>{5, 6, 7, 8};
   std::vector<int> resultL, resultR;
   std::tie(resultL, resultR) = break_([](int x) { return x >= 5; },
-                                    std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
+                                      std::vector<int>{1, 2, 3, 4, 5, 6, 7, 8});
   assert(resultL == expectL);
+  assert(resultR == expectR);
+}
+
+auto test_zip() -> void {
+  using Prelude::zip;
+  auto expect =
+      std::vector<std::tuple<int, bool>>{{1, true}, {2, false}, {3, true}};
+  auto result =
+      zip(std::vector<int>{1, 2, 3}, std::list<bool>{true, false, true});
+  assert(result == expect);
+}
+
+auto test_zip3() -> void {
+  using Prelude::zip3;
+  auto expect = std::vector<std::tuple<int, bool, char>>{
+      {1, true, 'a'}, {2, false, 'b'}, {3, true, 'm'}};
+  auto result =
+      zip3(std::vector<int>{1, 2, 3}, std::list<bool>{true, false, true},
+           std::vector<char>{'a', 'b', 'm'});
+  assert(result == expect);
+}
+
+auto test_zipWith() -> void {
+  using Prelude::zipWith;
+  auto expect = std::vector<int>{1, 0, 3, 0, 5, 0};
+  auto result = zipWith([](int x, bool y) { return y ? x : 0; },
+                        std::vector<int>{1, 2, 3, 4, 5, 6},
+                        std::list<bool>{true, false, true, false, true, false});
+  assert(result == expect);
+}
+
+auto test_zipWith3() -> void {
+  using Prelude::zipWith3;
+  auto expect = std::vector<std::string>{"aaa", "", "ccccc"};
+  auto result =
+      zipWith3([](int x, bool y, char z) { return y ? std::string(x, z) : ""; },
+               std::vector<int>{3, 4, 5}, std::list<bool>{true, false, true},
+               std::list<char>{'a', 'b', 'c'});
+  assert(result == expect);
+}
+
+auto test_unzip() -> void {
+  using Prelude::unzip;
+  auto expectL = std::vector<int>{1, 2, 3};
+  auto expectR = std::vector<bool>{true, false, true};
+  std::vector<int> resultL;
+  std::vector<bool> resultR;
+  std::tie(resultL, resultR) = unzip(
+      std::vector<std::tuple<int, bool>>{{1, true}, {2, false}, {3, true}});
+  assert(resultL == expectL);
+  assert(resultR == expectR);
+}
+
+auto test_unzip3() -> void {
+  using Prelude::unzip3;
+  auto expectL = std::vector<int>{1, 2, 3};
+  auto expectM = std::vector<char>{'a', 'b', 'c'};
+  auto expectR = std::vector<bool>{true, false, true};
+  std::vector<int> resultL;
+  std::vector<char> resultM;
+  std::vector<bool> resultR;
+  std::tie(resultL, resultM, resultR) =
+      unzip3(std::vector<std::tuple<int, char, bool>>{
+          {1, 'a', true}, {2, 'b', false}, {3, 'c', true}});
+  assert(resultL == expectL);
+  assert(resultM == expectM);
   assert(resultR == expectR);
 }
 
@@ -313,4 +380,13 @@ int main() {
   test_dropWhile();
   test_span();
   test_break_();
+  // Zipping and unzipping lists
+  test_zip();
+  test_zip3();
+  test_zipWith();
+  test_zipWith3();
+  test_unzip();
+  test_unzip3();
+
+  std::cout << "Looking good!\n";
 }
